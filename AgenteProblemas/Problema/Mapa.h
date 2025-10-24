@@ -6,9 +6,7 @@
 #include <memory>
 #include "Estado.h"
 
-/**
- * Classe Mapa: Representa o conjunto de estados e a topologia do grafo.
- */
+
 class Mapa {
 public:
 
@@ -18,12 +16,6 @@ public:
     ~Mapa() = default;
 
     Estado* adicionar_estado(const std::string& nome_cidade);
-
-    /**
-     * Conecta duas cidades com transições bidirecionais (grafo não-direcionado),
-     * garantindo que não haja duplicação de transições.
-     */
-    void conectar_estados(const std::string& cidade_a, const std::string& cidade_b, int distancia);
 
     Estado* get_estado(const std::string& nome_cidade) const;
    
