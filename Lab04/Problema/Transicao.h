@@ -9,9 +9,10 @@ class Estado;
 
 class Transicao {
 public:
-    Estado* destinoPtr;
+    Estado* destinoPtr; 
     int custo;
 
+    // Construtor
     Transicao(Estado* dest, int c) : destinoPtr(dest), custo(c) {}
 };
 

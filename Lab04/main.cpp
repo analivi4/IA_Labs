@@ -6,11 +6,14 @@
 #include <algorithm>
 
 #include "Problema/Mapa.h" 
-#include "Busca/Buscas.h"
+#include "BuscaHeuristica/BuscasHeuristicas.h"
 
-void CriarMapaRomenia(Mapa& mapa_romenia) {
+
+
+void CriarMapaRomenia(Mapa& mapa_romenia){
     
     // 1. CRIAÇÃO DOS OBJETOS ESTADO 
+  
     Estado* arad = new Estado("Arad");
     Estado* zerind = new Estado("Zerind");
     Estado* oradea = new Estado("Oradea");
@@ -33,6 +36,7 @@ void CriarMapaRomenia(Mapa& mapa_romenia) {
     Estado* neamt = new Estado("Neamt");
     
     // 2. ADIÇÃO DAS TRANSIÇÕES NOS OBJETOS ESTADO 
+    
     // Arad
     arad->adicionarTransicao(zerind, 75);      
     arad->adicionarTransicao(timisoara, 118);
@@ -101,7 +105,6 @@ void CriarMapaRomenia(Mapa& mapa_romenia) {
     neamt->adicionarTransicao(iasi, 87);
 
     // 3. ADIÇÃO DOS ESTADOS COMPLETOS NO MAPA
-
     mapa_romenia.adicionarEstado(arad);
     mapa_romenia.adicionarEstado(zerind);
     mapa_romenia.adicionarEstado(oradea);
@@ -130,75 +133,53 @@ int main() {
 
     CriarMapaRomenia(mapa_romenia);
 
-    string estadoInicial = "Arad";
-    string estadoObjetivo = "Bucharest";
+    const string estadoInicial = "Arad";
+    const string estadoObjetivo = "Bucharest";
 
- 
-    cout << "Início: " << estadoInicial << " | Objetivo: " << estadoObjetivo << endl;
-
-    ResultadoBusca resultado = buscaEmLargura(mapa_romenia, estadoInicial, estadoObjetivo);
-
-    if (resultado.sucesso) {
-
-        cout << "Sequência de Ações (Caminho):" << endl;
-        for (const string& acao : resultado.sequenciaAcoes) {
-            cout << "  -> " << acao << endl;
-        }
-
-        cout << "\nCusto Total da Solução (BFS): " << resultado.custoTotal << " km" << endl;
-        
-        cout << "Tempo de Execução (Simples): " << resultado.tempoExecucaoUs << " µs" << endl;
-        cout << "-------------------------------------------" << endl;
-    } else {
-        cout << "FALHA: Solução não encontrada ou borda esgotada." << endl;
-        cout << "Tempo de Execução (Simples): " << resultado.tempoExecucaoUs << " µs" << endl;
-        cout << "-------------------------------------------" << endl;
-    }
-
-    cout << "===========================================" << endl;
-
-    cout << "Início: " << estadoInicial << " | Objetivo: " << estadoObjetivo << endl;
   
-
-    ResultadoBusca resultado_ucs = buscaDeCustoUniforme(mapa_romenia, estadoInicial, estadoObjetivo);
-
-    if (resultado_ucs.sucesso) {
-  
-        cout << "Sequência de Ações (Caminho):" << endl;
-        for (const string& acao : resultado_ucs.sequenciaAcoes) {
-            cout << "  -> " << acao << endl;
-        }
-
-        cout << "\nCusto Mínimo Total da Solução (UCS): " << resultado_ucs.custoTotal << " km" << endl;
-        
-        cout << "Tempo de Execução (UCS): " << resultado_ucs.tempoExecucaoUs << " µs (Microssegundos)" << endl;
-        cout << "-------------------------------------------" << endl;
-    } else {
-        cout << " FALHA: Solução não encontrada." << endl;
-        cout << "Tempo de Execução (UCS): " << resultado_ucs.tempoExecucaoUs << " µs (Microssegundos)" << endl;
-        cout << "-------------------------------------------" << endl;
-    }
-
-    // 3. Execução da Busca em Profundidade (DFS)
-    cout << "\n=========================================================" << endl;
-
     cout << "INÍCIO: " << estadoInicial << " | OBJETIVO: " << estadoObjetivo << endl;
-   
+    cout << "=================================================================" << endl;
 
-    ResultadoBusca resultado_dfs = buscaEmProfundidade(mapa_romenia, estadoInicial, estadoObjetivo);
+    cout << "EXECUÇÃO: Busca Gulosa de Melhor Escolha (f(n) = h(n))" << endl;
+  
 
-    if (resultado_dfs.sucesso) {
-        cout << "Caminho (Ações):" << endl;
-        for (const string& acao : resultado_dfs.sequenciaAcoes) {
+    ResultadoBusca resultado_gulosa = buscaGulosa(mapa_romenia, estadoInicial, estadoObjetivo);
+
+    if (resultado_gulosa.sucesso) {
+    
+        cout << "Custo Final do Caminho (g(n)): " << resultado_gulosa.custoTotal << " km" << endl;
+        
+        cout << "Tempo de Execução: " << resultado_gulosa.tempoExecucaoUs << " µs" << endl;
+
+        cout << "\nSequência de Ações (Caminho Percorrido):" << endl;
+        for (const string& acao : resultado_gulosa.sequenciaAcoes) {
             cout << "  -> " << acao << endl;
         }
-        cout << "\nDFS Custo (Soma das distâncias): " << resultado_dfs.custoTotal << " km" << endl;
-        cout << "DFS Tempo de Execução: " << resultado_dfs.tempoExecucaoUs << " µs" << endl;
+
     } else {
-        cout << " DFS FALHOU ao encontrar solução." << endl;
+        cout << "FALHA: A busca Gulosa não conseguiu encontrar o caminho de " 
+             << estadoInicial << " para " << estadoObjetivo << "." << endl;
+        cout << "Tempo de Execução: " << resultado_gulosa.tempoExecucaoUs << " µs" << endl;
     }
 
-    cout << "=========================================================" << endl;
+    cout << "=================================================================" << endl;
+
+
+    cout << "EXECUÇÃO: Busca A* (A-Star) (f(n) = g(n) + h(n))" << endl;
+
+    ResultadoBusca resultado_astar = buscaAStar(mapa_romenia, estadoInicial, estadoObjetivo);
+
+    if (resultado_astar.sucesso) {
+        cout << "Custo Mínimo do Caminho (g(n)): " << resultado_astar.custoTotal << " km" << endl; 
+        cout << "Tempo de Execução: " << resultado_astar.tempoExecucaoUs << " µs" << endl;
+        cout << "Sequência de Ações:" << endl;
+        for (const string& acao : resultado_astar.sequenciaAcoes) {
+            cout << "  -> " << acao << endl;
+        }
+    } else {
+        cout << "FALHA: Busca A* não encontrou o caminho." << endl;
+    }
+
 
     return 0;
 }

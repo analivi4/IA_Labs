@@ -8,6 +8,7 @@
 #include <utility>
 #include "Estado.h" 
 
+
 class Mapa {
 private:
     std::map<std::string, Estado*> estados;
@@ -29,11 +30,10 @@ public:
   
     ~Mapa() {
         for (auto it = estados.begin(); it != estados.end(); ++it) {
-            delete it->second;
+            delete it->second; 
         }
     }
     
-    // Imprime o mapa para visualização
     void imprimirMapa() const {
         std::cout << "\n=== Mapa Rodoviário da Romênia ===" << std::endl;
         for (const auto& par : estados) {

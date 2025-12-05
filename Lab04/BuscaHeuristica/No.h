@@ -10,8 +10,11 @@
 class No {
 public:
     std::string estado; 
+    
     No* pai; 
+    
     std::string acao;
+    
     int custoCaminho; 
 
     No(const std::string& estadoInicial) : 

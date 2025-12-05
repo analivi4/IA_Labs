@@ -1,16 +1,23 @@
-// main.cpp
+// mainTabela.cpp
 
 #include <iostream>
 #include <vector>
 #include <string>
-#include <algorithm>
+#include <iomanip>
+#include <utility>
 
 #include "Problema/Mapa.h" 
 #include "Busca/Buscas.h"
 
+
+struct ProblemaBusca {
+    std::string origem;
+    std::string destino;
+};
+
 void CriarMapaRomenia(Mapa& mapa_romenia) {
     
-    // 1. CRIAÇÃO DOS OBJETOS ESTADO 
+    // 1. CRIAÇÃO DOS OBJETOS ESTADO
     Estado* arad = new Estado("Arad");
     Estado* zerind = new Estado("Zerind");
     Estado* oradea = new Estado("Oradea");
@@ -101,7 +108,6 @@ void CriarMapaRomenia(Mapa& mapa_romenia) {
     neamt->adicionarTransicao(iasi, 87);
 
     // 3. ADIÇÃO DOS ESTADOS COMPLETOS NO MAPA
-
     mapa_romenia.adicionarEstado(arad);
     mapa_romenia.adicionarEstado(zerind);
     mapa_romenia.adicionarEstado(oradea);
@@ -126,79 +132,85 @@ void CriarMapaRomenia(Mapa& mapa_romenia) {
 
 int main() {
 
+    
     Mapa mapa_romenia;
+    CriarMapaRomenia(mapa_romenia); 
 
-    CriarMapaRomenia(mapa_romenia);
+    std::vector<ProblemaBusca> problemas = {
+        {"Arad", "Bucharest"},
+        {"Sibiu", "Fagaras"},
+        {"Oradea", "Craiova"},
+        {"Timisoara", "Bucharest"},
+        {"Zerind", "Pitesti"},
+        {"Lugoj", "Urziceni"},
+        {"Arad", "Neamt"},
+        {"Craiova", "Iasi"},
+        {"Mehadia", "Vaslui"},
+        {"Giurgiu", "Eforie"}
+    };
 
-    string estadoInicial = "Arad";
-    string estadoObjetivo = "Bucharest";
+    // 2. Configuração da Tabela de Impressão
+    const int w_origem = 12; 
+    const int w_data = 10;   
 
- 
-    cout << "Início: " << estadoInicial << " | Objetivo: " << estadoObjetivo << endl;
+    std::cout << "\n================================================================================================================================" << std::endl;
+    std::cout << "## 7. Tabela de Resultados (BFS, UCS, DFS)" << std::endl;
+    std::cout << "================================================================================================================================" << std::endl;
+    
+    // Cabeçalho da Tabela
+    std::cout << std::left << std::setw(w_origem) << "Origem";
+    std::cout << std::left << std::setw(w_origem) << "Destino";
+    std::cout << std::left << std::setw(w_data)   << "BFS C";
+    std::cout << std::left << std::setw(w_data)   << "BFS T";
+    std::cout << std::left << std::setw(w_data)   << "UCS C";
+    std::cout << std::left << std::setw(w_data)   << "UCS T";
+    std::cout << std::left << std::setw(w_data)   << "DFS C";
+    std::cout << std::left << std::setw(w_data)   << "DFS T";
+    std::cout << std::endl;
+    std::cout << "--------------------------------------------------------------------------------------------------------------------------------" << std::endl;
 
-    ResultadoBusca resultado = buscaEmLargura(mapa_romenia, estadoInicial, estadoObjetivo);
-
-    if (resultado.sucesso) {
-
-        cout << "Sequência de Ações (Caminho):" << endl;
-        for (const string& acao : resultado.sequenciaAcoes) {
-            cout << "  -> " << acao << endl;
-        }
-
-        cout << "\nCusto Total da Solução (BFS): " << resultado.custoTotal << " km" << endl;
+    for (const auto& problema : problemas) {
         
-        cout << "Tempo de Execução (Simples): " << resultado.tempoExecucaoUs << " µs" << endl;
-        cout << "-------------------------------------------" << endl;
-    } else {
-        cout << "FALHA: Solução não encontrada ou borda esgotada." << endl;
-        cout << "Tempo de Execução (Simples): " << resultado.tempoExecucaoUs << " µs" << endl;
-        cout << "-------------------------------------------" << endl;
-    }
-
-    cout << "===========================================" << endl;
-
-    cout << "Início: " << estadoInicial << " | Objetivo: " << estadoObjetivo << endl;
-  
-
-    ResultadoBusca resultado_ucs = buscaDeCustoUniforme(mapa_romenia, estadoInicial, estadoObjetivo);
-
-    if (resultado_ucs.sucesso) {
-  
-        cout << "Sequência de Ações (Caminho):" << endl;
-        for (const string& acao : resultado_ucs.sequenciaAcoes) {
-            cout << "  -> " << acao << endl;
-        }
-
-        cout << "\nCusto Mínimo Total da Solução (UCS): " << resultado_ucs.custoTotal << " km" << endl;
+        // Executar as 3 Buscas
+        ResultadoBusca resultado_bfs = buscaEmLargura(mapa_romenia, problema.origem, problema.destino);
+        ResultadoBusca resultado_ucs = buscaDeCustoUniforme(mapa_romenia, problema.origem, problema.destino);
+        ResultadoBusca resultado_dfs = buscaEmProfundidade(mapa_romenia, problema.origem, problema.destino);
         
-        cout << "Tempo de Execução (UCS): " << resultado_ucs.tempoExecucaoUs << " µs (Microssegundos)" << endl;
-        cout << "-------------------------------------------" << endl;
-    } else {
-        cout << " FALHA: Solução não encontrada." << endl;
-        cout << "Tempo de Execução (UCS): " << resultado_ucs.tempoExecucaoUs << " µs (Microssegundos)" << endl;
-        cout << "-------------------------------------------" << endl;
-    }
-
-    // 3. Execução da Busca em Profundidade (DFS)
-    cout << "\n=========================================================" << endl;
-
-    cout << "INÍCIO: " << estadoInicial << " | OBJETIVO: " << estadoObjetivo << endl;
-   
-
-    ResultadoBusca resultado_dfs = buscaEmProfundidade(mapa_romenia, estadoInicial, estadoObjetivo);
-
-    if (resultado_dfs.sucesso) {
-        cout << "Caminho (Ações):" << endl;
-        for (const string& acao : resultado_dfs.sequenciaAcoes) {
-            cout << "  -> " << acao << endl;
+        // Linha da Tabela
+        std::cout << std::left << std::setw(w_origem) << problema.origem;
+        std::cout << std::left << std::setw(w_origem) << problema.destino;
+        
+        // BFS
+        if (resultado_bfs.sucesso) {
+            std::cout << std::left << std::setw(w_data) << resultado_bfs.custoTotal;
+            std::cout << std::left << std::setw(w_data) << resultado_bfs.tempoExecucaoUs;
+        } else {
+            std::cout << std::left << std::setw(w_data) << "FALHA";
+            std::cout << std::left << std::setw(w_data) << "N/A";
         }
-        cout << "\nDFS Custo (Soma das distâncias): " << resultado_dfs.custoTotal << " km" << endl;
-        cout << "DFS Tempo de Execução: " << resultado_dfs.tempoExecucaoUs << " µs" << endl;
-    } else {
-        cout << " DFS FALHOU ao encontrar solução." << endl;
-    }
 
-    cout << "=========================================================" << endl;
+        // UCS
+        if (resultado_ucs.sucesso) {
+            std::cout << std::left << std::setw(w_data) << resultado_ucs.custoTotal;
+            std::cout << std::left << std::setw(w_data) << resultado_ucs.tempoExecucaoUs;
+        } else {
+            std::cout << std::left << std::setw(w_data) << "FALHA";
+            std::cout << std::left << std::setw(w_data) << "N/A";
+        }
+        
+        // DFS
+        if (resultado_dfs.sucesso) {
+            std::cout << std::left << std::setw(w_data) << resultado_dfs.custoTotal;
+            std::cout << std::left << std::setw(w_data) << resultado_dfs.tempoExecucaoUs;
+        } else {
+            std::cout << std::left << std::setw(w_data) << "FALHA";
+            std::cout << std::left << std::setw(w_data) << "N/A";
+        }
+        
+        std::cout << std::endl;
+    }
+    
+    std::cout << "--------------------------------------------------------------------------------------------------------------------------------" << std::endl;
 
     return 0;
 }

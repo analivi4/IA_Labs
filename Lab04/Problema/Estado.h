@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include "Transicao.h" 
+#include "Transicao.h"
 
 class Estado {
 public:
